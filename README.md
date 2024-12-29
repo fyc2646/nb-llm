@@ -1,4 +1,4 @@
-# Web Jupyter Editor
+# LLM-powered Web Jupyter Notebook Editor
 
 A web-based Jupyter notebook editor with AI capabilities powered by OpenAI's GPT models.
 
@@ -58,7 +58,7 @@ python app.py
 - Backend: Flask (Python)
 - Frontend: JavaScript, CodeMirror
 - Styling: Bootstrap, Custom CSS
-- AI: OpenAI GPT-4
+- AI: OpenAI GPT-4o
 
 ## License
 
