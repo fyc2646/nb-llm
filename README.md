@@ -18,8 +18,8 @@ A web-based Jupyter notebook editor with AI capabilities powered by OpenAI's GPT
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/web-jupyter-editor.git
-cd web-jupyter-editor
+git clone https://github.com/fyc2646/nb-llm.git
+cd nb-llm
 ```
 
 2. Install dependencies:
