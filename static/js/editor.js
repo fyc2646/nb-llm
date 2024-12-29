@@ -228,6 +228,8 @@ class NotebookEditor {
                             } else if (output.type === 'execute_result' || output.type === 'display_data') {
                                 if (output.data['text/html']) {
                                     outputElement.innerHTML = output.data['text/html'];
+                                } else if (output.data['image/png']) {
+                                    outputElement.innerHTML = `<img src="data:image/png;base64,${output.data['image/png']}" />`;
                                 } else if (output.data['text/plain']) {
                                     outputElement.innerText = output.data['text/plain'];
                                 }

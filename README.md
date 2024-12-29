@@ -29,6 +29,8 @@ cd nb-llm
 ```bash
 pip install -r requirements.txt
 ```
+If you would like to use other libraries such as numpy and matplotlib, you can add them to the requirements.txt file and install them together.
+
 
 3. Create a `.env` file in the root directory and add your OpenAI API key:
 ```

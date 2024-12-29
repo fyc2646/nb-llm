@@ -29,6 +29,8 @@ class KernelConnection:
             self.kc = self.km.client()
             self.kc.start_channels()
             self.kc.wait_for_ready()
+            # Enable matplotlib inline display
+            self.execute('%matplotlib inline')
             # Test the kernel
             self.execute('print("Kernel initialized")')
     
