@@ -1,0 +1,114 @@
+body {
+    padding-bottom: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.cell {
+    margin: 15px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 100%;
+}
+
+.cell-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #ddd;
+}
+
+.cell-type {
+    font-weight: bold;
+    color: #666;
+}
+
+.cell-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.cell-controls button {
+    padding: 3px 10px;
+    border: 1px solid #ddd;
+    background: white;
+    border-radius: 3px;
+    cursor: pointer;
+    color: #000; /* Make text black */
+    font-weight: normal;
+}
+
+.cell-controls button:hover {
+    background: #e9ecef;
+}
+
+.cell-controls .polish-markdown,
+.cell-controls .optimize-code,
+.cell-controls .ai-chat {
+    color: #000;
+    font-weight: normal;
+}
+
+.cell-content {
+    padding: 12px;
+}
+
+.CodeMirror {
+    height: auto;
+    border-radius: 0 0 4px 4px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.CodeMirror-scroll {
+    min-height: 100px;
+}
+
+.btn {
+    font-size: 0.9rem;
+}
+
+.delete-cell {
+    color: #dc3545;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+}
+
+.move-cell {
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    color: #6c757d;
+}
+
+.polish-markdown,
+.optimize-code {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.polish-markdown:hover,
+.optimize-code:hover {
+    background-color: #5a6268;
+}
+
+.polish-markdown:disabled,
+.optimize-code:disabled {
+    background-color: #adb5bd;
+    cursor: not-allowed;
+}
