@@ -46,9 +46,9 @@ python app.py
 3. **Moving Cells**: Use the up/down arrows to reorder cells
 4. **Deleting Cells**: Click the "×" button to remove a cell
 5. **AI Features**:
-   - Click "AI Chat" to get help with your code or markdown
-   - Use "AI Polish" to improve markdown content
-   - Use "AI Optimize" to enhance Python code
+   - Click "AI Chat" to get help with your code or markdown. The AI response can be directly applied to the cell
+   - Use "AI Polish" to automatically polish the markdown content in the cell
+   - Use "AI Optimize" to automatically optimize the Python code in the cell
 6. **File Operations**:
    - Upload existing notebooks using the "Upload Notebook" button
    - Save your work using the "Save Notebook" button
