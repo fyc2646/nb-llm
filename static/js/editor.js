@@ -136,7 +136,7 @@ class NotebookEditor {
                     polishBtn.disabled = true;
                     polishBtn.textContent = 'Polishing...';
                     
-                    const response = await fetch('/api/polish-markdown', {
+                    const response = await fetch('/api/polish', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -146,7 +146,7 @@ class NotebookEditor {
 
                     const result = await response.json();
                     if (result.status === 'success') {
-                        cell.editor.setValue(result.polished_text);
+                        cell.editor.setValue(result.text);
                     } else {
                         throw new Error(result.message || 'Unknown error occurred');
                     }
@@ -167,7 +167,7 @@ class NotebookEditor {
                     optimizeBtn.disabled = true;
                     optimizeBtn.textContent = 'Optimizing...';
                     
-                    const response = await fetch('/api/optimize-code', {
+                    const response = await fetch('/api/optimize', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -177,7 +177,7 @@ class NotebookEditor {
 
                     const result = await response.json();
                     if (result.status === 'success') {
-                        cell.editor.setValue(result.optimized_code);
+                        cell.editor.setValue(result.code);
                     } else {
                         throw new Error(result.message || 'Unknown error occurred');
                     }
@@ -280,14 +280,16 @@ class NotebookEditor {
                 },
                 body: JSON.stringify({
                     prompt: prompt,
+                    context: cell.editor.getValue(),
                     cell_type: cell.type
                 })
             });
 
             const result = await response.json();
             if (result.status === 'success') {
-                if (window.confirm('Apply this response to the cell?\n\n' + result.response)) {
-                    cell.editor.setValue(result.response);
+                const cleanReply = result.reply.trimStart();  // Remove leading whitespace and newlines
+                if (window.confirm('Apply this response to the cell?\n\n' + cleanReply)) {
+                    cell.editor.setValue(cleanReply);
                 }
             } else {
                 throw new Error(result.message || 'Unknown error occurred');

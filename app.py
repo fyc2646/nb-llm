@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
-client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+client = OpenAI()  # OpenAI will automatically use OPENAI_API_KEY from environment
 
 @app.route('/')
 def index():
@@ -142,39 +142,33 @@ def upload_notebook():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 400
 
-@app.route('/api/polish-markdown', methods=['POST'])
+@app.route('/api/polish', methods=['POST'])
 def polish_markdown():
     try:
         data = request.json
-        markdown_text = data.get('text', '')
-        
+        markdown_text = data.get('text')
         if not markdown_text:
             return jsonify({"status": "error", "message": "No text provided"}), 400
 
         # Call OpenAI API to polish the markdown
         response = client.chat.completions.create(
-            model="gpt-4o",
+            model="gpt-4",
             messages=[
                 {"role": "system", "content": "You are a helpful assistant that polishes markdown text to make it more professional, clear, and well-structured. Maintain the original meaning but improve the writing quality."},
                 {"role": "user", "content": f"Please polish the following markdown text and only return the polished text without any explanation or comments. Markdown text:\n\n{markdown_text}"}
             ]
         )
         
-        polished_text = response.choices[0].message.content.strip()
-        
-        return jsonify({
-            "status": "success",
-            "polished_text": polished_text
-        })
+        polished_text = response.choices[0].message.content
+        return jsonify({"status": "success", "text": polished_text})
     except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 400
+        return jsonify({"status": "error", "message": str(e)}), 500
 
-@app.route('/api/optimize-code', methods=['POST'])
+@app.route('/api/optimize', methods=['POST'])
 def optimize_code():
     try:
         data = request.json
-        code = data.get('code', '')
-        
+        code = data.get('code')
         if not code:
             return jsonify({"status": "error", "message": "No code provided"}), 400
 
@@ -183,55 +177,41 @@ def optimize_code():
             model="gpt-4",
             messages=[
                 {"role": "system", "content": "You are an expert programmer that optimizes code for better performance, readability, and maintainability. Keep the core functionality intact while improving the code quality. Only return the optimized code without any explanations or comments."},
-                {"role": "user", "content": f"Please optimize this code and return only the optimized code without any explanations:\n\n{code}"}
+                {"role": "user", "content": f"Please optimize the following code and only return the optimized code. If there are comments in the code, your optimized code should also have comments. Code to be optimized:\n\n{code}"}
             ]
         )
         
-        optimized_code = response.choices[0].message.content.strip()
-        
-        # Clean up markdown code block markers if present
-        if optimized_code.startswith('```python\n'):
-            optimized_code = optimized_code[len('```python\n'):]
-        elif optimized_code.startswith('```\n'):
-            optimized_code = optimized_code[len('```\n'):]
-            
-        if optimized_code.endswith('\n```'):
-            optimized_code = optimized_code[:-4]
-        elif optimized_code.endswith('```'):
-            optimized_code = optimized_code[:-3]
-            
-        optimized_code = optimized_code.strip()
-        
-        return jsonify({
-            "status": "success",
-            "optimized_code": optimized_code
-        })
+        optimized_code = response.choices[0].message.content
+        return jsonify({"status": "success", "code": optimized_code})
     except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 400
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route('/api/chat', methods=['POST'])
 def chat():
     try:
         data = request.json
-        if not data or 'prompt' not in data or 'cell_type' not in data:
-            return jsonify({
-                "status": "error",
-                "message": "Missing prompt or cell type"
-            }), 400
-
-        prompt = data['prompt']
-        cell_type = data['cell_type']
+        prompt = data.get('prompt')
+        context = data.get('context', '')
+        cell_type = data.get('cell_type', 'code')
         
-        # Add cell type context to the prompt
+        if not prompt:
+            return jsonify({"status": "error", "message": "No prompt provided"}), 400
+
+        # Different system prompts based on cell type
         if cell_type == 'code':
-            system_prompt = "You are a Python programming expert. Provide only the code without any explanations or markdown. Do not include ```python or ``` markers."
+            system_prompt = "You are a Python programming expert. Provide clear, well-documented code solutions. Include helpful comments in your code to explain the logic. Return only the code without any additional explanations."
         else:
-            system_prompt = "You are a technical writing expert. Provide the response in markdown format. Do not include ```markdown or ``` markers."
+            system_prompt = "You are a technical writing expert. Provide well-structured markdown content that is clear, concise, and follows best practices for documentation. Return only the markdown content without any additional explanations."
 
         messages = [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": prompt}
+            {"role": "system", "content": system_prompt}
         ]
+        
+        if context:
+            messages.append({"role": "user", "content": f"Context:\n{context}"})
+            messages.append({"role": "assistant", "content": "I understand the context. How can I help you?"})
+        
+        messages.append({"role": "user", "content": prompt})
 
         response = client.chat.completions.create(
             model="gpt-4o",
@@ -239,19 +219,24 @@ def chat():
             temperature=0.7,
             max_tokens=1000
         )
-
-        content = response.choices[0].message.content.strip()
         
-        return jsonify({
-            "status": "success",
-            "response": content
-        })
-
+        reply = response.choices[0].message.content.strip()  # Remove all surrounding whitespace
+        
+        # Clean up code fence markers if present
+        if cell_type == 'code':
+            if reply.startswith('```python'):
+                reply = reply[8:].strip()  # Remove ```python
+            elif reply.startswith('```'):
+                reply = reply[3:].strip()  # Remove ```
+            if reply.endswith('```'):
+                reply = reply[:-3].strip()  # Remove trailing ```
+            
+            # Remove any remaining leading newlines or 'n' character
+            reply = reply.lstrip('n').lstrip()
+        
+        return jsonify({"status": "success", "reply": reply})
     except Exception as e:
-        return jsonify({
-            "status": "error",
-            "message": str(e)
-        }), 400
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route('/api/directories', methods=['GET'])
 def get_directories():
