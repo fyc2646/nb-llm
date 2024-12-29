@@ -1,13 +1,101 @@
 from flask import Flask, render_template, request, jsonify
 import json
 import os
+import queue
 from openai import OpenAI
 from dotenv import load_dotenv
+from jupyter_client import BlockingKernelClient, KernelManager
+from jupyter_client.kernelspec import NoSuchKernel
+import atexit
 
 load_dotenv()
 
 app = Flask(__name__)
 client = OpenAI()  # OpenAI will automatically use OPENAI_API_KEY from environment
+
+# Global variables for kernel management
+_kernel = None
+
+class KernelConnection:
+    def __init__(self):
+        self.km = None
+        self.kc = None
+        self.initialize()
+    
+    def initialize(self):
+        if self.km is None:
+            self.km = KernelManager(kernel_name='python3')
+            self.km.start_kernel()
+            self.kc = self.km.client()
+            self.kc.start_channels()
+            self.kc.wait_for_ready()
+            # Test the kernel
+            self.execute('print("Kernel initialized")')
+    
+    def execute(self, code):
+        if not self.km or not self.km.is_alive():
+            self.initialize()
+        
+        msg_id = self.kc.execute(code, store_history=True)
+        outputs = []
+        done = False
+        
+        while not done:
+            try:
+                msg = self.kc.get_iopub_msg(timeout=1)
+                msg_type = msg['header']['msg_type']
+                content = msg['content']
+                
+                if msg_type == 'stream':
+                    outputs.append({
+                        'type': 'stream',
+                        'name': content['name'],
+                        'text': content['text']
+                    })
+                elif msg_type == 'display_data':
+                    outputs.append({
+                        'type': 'display_data',
+                        'data': content['data']
+                    })
+                elif msg_type == 'execute_result':
+                    outputs.append({
+                        'type': 'execute_result',
+                        'data': content['data']
+                    })
+                elif msg_type == 'error':
+                    outputs.append({
+                        'type': 'error',
+                        'ename': content['ename'],
+                        'evalue': content['evalue'],
+                        'traceback': content['traceback']
+                    })
+                elif msg_type == 'status' and content['execution_state'] == 'idle':
+                    done = True
+            except queue.Empty:
+                continue
+        
+        return outputs
+    
+    def shutdown(self):
+        if self.kc:
+            self.kc.stop_channels()
+        if self.km:
+            self.km.shutdown_kernel(now=True)
+            self.km = None
+            self.kc = None
+
+def get_kernel():
+    global _kernel
+    if _kernel is None:
+        _kernel = KernelConnection()
+    return _kernel
+
+@atexit.register
+def cleanup():
+    global _kernel
+    if _kernel:
+        _kernel.shutdown()
+        _kernel = None
 
 @app.route('/')
 def index():
@@ -263,6 +351,24 @@ def get_directories():
             "status": "error",
             "message": str(e)
         }), 400
+
+@app.route('/api/execute', methods=['POST'])
+def execute_code():
+    try:
+        data = request.json
+        code = data.get('code')
+        if not code:
+            return jsonify({"status": "error", "message": "No code provided"}), 400
+
+        kernel = get_kernel()
+        outputs = kernel.execute(code)
+        
+        return jsonify({
+            "status": "success",
+            "outputs": outputs
+        })
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)

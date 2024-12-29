@@ -4,6 +4,8 @@ class NotebookEditor {
         this.cells = [];
         this.initializeFileInput();
         this.setupEventListeners();
+        // Add an empty code cell by default
+        this.addCell('code');
     }
 
     initializeFileInput() {
@@ -84,6 +86,7 @@ class NotebookEditor {
             <div class="cell-controls">
                 ${type === 'markdown' ? '<button class="polish-markdown me-2">AI Polish</button>' : ''}
                 ${type === 'code' ? '<button class="optimize-code me-2">AI Optimize</button>' : ''}
+                ${type === 'code' ? '<button class="run-code me-2">▶ Run</button>' : ''}
                 <button class="move-cell" data-direction="up">↑</button>
                 <button class="move-cell" data-direction="down">↓</button>
                 <button class="delete-cell">×</button>
@@ -94,8 +97,13 @@ class NotebookEditor {
         const contentDiv = document.createElement('div');
         contentDiv.className = 'cell-content';
 
+        const outputDiv = document.createElement('div');
+        outputDiv.className = 'cell-output';
+        outputDiv.style.display = 'none';
+
         cellDiv.appendChild(headerDiv);
         cellDiv.appendChild(contentDiv);
+        cellDiv.appendChild(outputDiv);
         this.container.appendChild(cellDiv);
 
         // Setup CodeMirror
@@ -188,6 +196,55 @@ class NotebookEditor {
                     optimizeBtn.textContent = 'AI Optimize';
                 }
             });
+
+            const runBtn = cellDiv.querySelector('.run-code');
+            const outputDiv = cellDiv.querySelector('.cell-output');
+            
+            runBtn.addEventListener('click', async () => {
+                const code = cell.editor.getValue();
+                outputDiv.innerHTML = '<div class="alert alert-info">Running...</div>';
+                outputDiv.style.display = 'block';
+                
+                try {
+                    const response = await fetch('/api/execute', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ code: code })
+                    });
+
+                    const result = await response.json();
+                    if (result.status === 'success') {
+                        outputDiv.innerHTML = '';
+                        
+                        for (const output of result.outputs) {
+                            const outputElement = document.createElement('div');
+                            outputElement.className = 'output-item';
+                            
+                            if (output.type === 'stream') {
+                                outputElement.className += ' stream-output';
+                                outputElement.innerText = output.text;
+                            } else if (output.type === 'execute_result' || output.type === 'display_data') {
+                                if (output.data['text/html']) {
+                                    outputElement.innerHTML = output.data['text/html'];
+                                } else if (output.data['text/plain']) {
+                                    outputElement.innerText = output.data['text/plain'];
+                                }
+                            } else if (output.type === 'error') {
+                                outputElement.className += ' error-output';
+                                outputElement.innerHTML = `<pre class="error">${output.traceback.join('\n')}</pre>`;
+                            }
+                            
+                            outputDiv.appendChild(outputElement);
+                        }
+                    } else {
+                        throw new Error(result.message || 'Unknown error occurred');
+                    }
+                } catch (error) {
+                    outputDiv.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
+                }
+            });
         }
 
         const moveButtons = cellDiv.querySelectorAll('.move-cell');
@@ -208,16 +265,28 @@ class NotebookEditor {
     }
 
     swapCells(index1, index2) {
+        // Swap cells in the array
         [this.cells[index1], this.cells[index2]] = [this.cells[index2], this.cells[index1]];
-        const cell1 = this.cells[index1];
-        const cell2 = this.cells[index2];
-        const div1 = document.getElementById(cell1.id);
-        const div2 = document.getElementById(cell2.id);
-
+        
+        // Get the DOM elements
+        const div1 = document.getElementById(this.cells[index1].id);
+        const div2 = document.getElementById(this.cells[index2].id);
+        
+        // Store a reference to the next sibling before any swapping
+        const nextSibling = div2.nextSibling;
+        
+        // If moving up (index2 < index1), insert div2 before div1
         if (index2 < index1) {
-            div2.parentNode.insertBefore(div1, div2);
-        } else {
-            div2.parentNode.insertBefore(div1, div2.nextSibling);
+            div1.parentNode.insertBefore(div2, div1);
+        }
+        // If moving down (index2 > index1), insert div1 after div2
+        else {
+            if (nextSibling) {
+                div1.parentNode.insertBefore(div2, nextSibling);
+            } else {
+                div1.parentNode.appendChild(div2);
+            }
+            div1.parentNode.insertBefore(div1, div2);
         }
     }
 

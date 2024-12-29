@@ -1,11 +1,14 @@
-# LLM-powered Web Jupyter Notebook Editor
+# 📓Notebook with LLM🤖
 
 A web-based Jupyter notebook editor with AI capabilities powered by OpenAI's GPT models.
+
+<img src="asset/ui_demo.png" width="600" alt="UI Demo">
 
 ## Features
 
 - Create and edit Jupyter notebooks in your browser
 - Support for both code and markdown cells
+- Live code execution with Python kernel
 - AI-powered features:
   - AI Chat: Get help with your code or markdown
   - AI Polish: Improve your markdown content
@@ -45,13 +48,11 @@ python app.py
 2. **Editing Cells**: Click on a cell to edit its content
 3. **Moving Cells**: Use the up/down arrows to reorder cells
 4. **Deleting Cells**: Click the "×" button to remove a cell
-5. **AI Features**:
+5. **Code Execution**: Click the "▶ Run" button to execute Python code. Variables persist between cells
+6. **AI Features**:
    - Click "AI Chat" to get help with your code or markdown. The AI response can be directly applied to the cell
    - Use "AI Polish" to automatically polish the markdown content in the cell
    - Use "AI Optimize" to automatically optimize the Python code in the cell
-6. **File Operations**:
-   - Upload existing notebooks using the "Upload Notebook" button
-   - Save your work using the "Save Notebook" button
 
 ## Technologies Used
 
