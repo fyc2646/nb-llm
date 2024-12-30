@@ -84,13 +84,14 @@ class NotebookEditor {
         headerDiv.innerHTML = `
             <span class="cell-type">${type.charAt(0).toUpperCase() + type.slice(1)}</span>
             <div class="cell-controls">
-                ${type === 'markdown' ? '<button class="polish-markdown me-2">AI Polish</button>' : ''}
-                ${type === 'code' ? '<button class="optimize-code me-2">AI Optimize</button>' : ''}
-                ${type === 'code' ? '<button class="run-code me-2">▶ Run</button>' : ''}
-                <button class="move-cell" data-direction="up">↑</button>
-                <button class="move-cell" data-direction="down">↓</button>
-                <button class="delete-cell">×</button>
-                <button class="ai-chat">AI Chat</button>
+                ${type === 'markdown' ? '<button class="polish-markdown me-2 btn-custom">🦾 AI Polish</button>' : ''}
+                ${type === 'code' ? '<button class="optimize-code me-2 btn-custom">🦾 AI Optimize</button>' : ''}
+                ${type === 'code' ? '<button class="run-code me-2 btn-custom">▶ Run</button>' : ''}
+                ${type === 'code' ? '<button class="format-code me-2 btn-custom">🔧 Format</button>' : ''}
+                <button class="move-cell btn-custom" data-direction="up">↑</button>
+                <button class="move-cell btn-custom" data-direction="down">↓</button>
+                <button class="delete-cell btn-custom">×</button>
+                <button class="ai-chat btn-custom">🤖 Chat</button>
             </div>
         `;
 
@@ -162,7 +163,7 @@ class NotebookEditor {
                     alert('Error polishing markdown: ' + error.message);
                 } finally {
                     polishBtn.disabled = false;
-                    polishBtn.textContent = 'AI Polish';
+                    polishBtn.textContent = '🦾 AI Polish';
                 }
             });
         }
@@ -193,7 +194,7 @@ class NotebookEditor {
                     alert('Error optimizing code: ' + error.message);
                 } finally {
                     optimizeBtn.disabled = false;
-                    optimizeBtn.textContent = 'AI Optimize';
+                    optimizeBtn.textContent = '🦾 AI Optimize';
                 }
             });
 
@@ -245,6 +246,29 @@ class NotebookEditor {
                     }
                 } catch (error) {
                     outputDiv.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
+                }
+            });
+
+            const formatBtn = cellDiv.querySelector('.format-code');
+            formatBtn.addEventListener('click', async () => {
+                const code = cell.editor.getValue();
+                try {
+                    const response = await fetch('/api/format', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ code: code })
+                    });
+
+                    const result = await response.json();
+                    if (result.status === 'success') {
+                        cell.editor.setValue(result.formatted_code);
+                    } else {
+                        throw new Error(result.message || 'Formatting failed');
+                    }
+                } catch (error) {
+                    alert('Error formatting code: ' + error.message);
                 }
             });
         }

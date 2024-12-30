@@ -36,23 +36,39 @@ body {
 
 .cell-controls button {
     padding: 3px 10px;
-    border: 1px solid #ddd;
-    background: white;
-    border-radius: 3px;
+    border: none;
+    background-color: #1a5d1a;  /* Dark green */
+    color: white !important;  /* Force white text */
+    border-radius: 4px;
     cursor: pointer;
-    color: #000; /* Make text black */
+    transition: background-color 0.2s;
+    margin-right: 5px;
     font-weight: normal;
 }
 
 .cell-controls button:hover {
-    background: #e9ecef;
+    background-color: #2d882d;  /* Lighter green on hover */
+    color: white !important;
+}
+
+.cell-controls button:disabled {
+    background-color: #666;
+    cursor: not-allowed;
 }
 
 .cell-controls .polish-markdown,
 .cell-controls .optimize-code,
+.cell-controls .run-code,
 .cell-controls .ai-chat {
-    color: #000;
-    font-weight: normal;
+    color: white !important;
+}
+
+.cell-controls .delete-cell {
+    background-color: #dc3545;  /* Red */
+}
+
+.cell-controls .delete-cell:hover {
+    background-color: #bb2d3b;  /* Darker red */
 }
 
 .cell-content {
@@ -153,4 +169,33 @@ body {
 
 .run-code:hover {
     background-color: #218838;
+}
+
+.btn-custom {
+    background-color: #1a5d1a;  /* Dark green */
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-custom:hover {
+    background-color: #2d882d;  /* Lighter green on hover */
+    color: white;
+}
+
+.btn-custom:disabled {
+    background-color: #666;
+    cursor: not-allowed;
+}
+
+/* Keep the delete button red */
+.delete-cell {
+    background-color: #dc3545 !important;
+}
+
+.delete-cell:hover {
+    background-color: #bb2d3b !important;
 }

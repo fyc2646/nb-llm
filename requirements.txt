@@ -5,3 +5,4 @@ jupyter-client==8.6.0
 ipykernel==6.29.5
 openai==1.58.1
 python-dotenv==1.0.0
+black==24.10.0

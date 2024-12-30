@@ -4,9 +4,9 @@ import os
 import queue
 from openai import OpenAI
 from dotenv import load_dotenv
-from jupyter_client import BlockingKernelClient, KernelManager
-from jupyter_client.kernelspec import NoSuchKernel
+from jupyter_client import KernelManager
 import atexit
+import black
 
 load_dotenv()
 
@@ -371,6 +371,22 @@ def execute_code():
         })
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
+
+@app.route('/api/format', methods=['POST'])
+def format_code():
+    try:
+        code = request.json.get('code', '')
+        mode = black.Mode(line_length=100)
+        formatted_code = black.format_str(code, mode=mode)
+        return jsonify({
+            'status': 'success',
+            'formatted_code': formatted_code
+        })
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': str(e)
+        }), 400
 
 if __name__ == '__main__':
     app.run(debug=True)
