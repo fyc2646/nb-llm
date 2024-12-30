@@ -6,16 +6,16 @@ A web-based Jupyter notebook editor with AI capabilities powered by OpenAI's GPT
 
 ## Features
 
+- Interactive Jupyter-like notebook interface
+- 🦾 AI-powered code optimization and markdown polishing
+- 🔧 Code formatting using Black
+- 🤖 AI chat assistant for coding and writting help
+
 - Create and edit Jupyter notebooks in your browser
 - Support for both code and markdown cells
-- Live code execution with Python kernel
-- AI-powered features:
-  - AI Chat: Get help with your code or markdown
-  - AI Polish: Improve your markdown content
-  - AI Optimize: Enhance your Python code
-- Upload and save notebooks
-- Move and delete cells
-- Beautiful, responsive interface
+- Code execution with Python kernel
+- Load and save notebooks
+- Responsive interface
 
 ## Setup
 
@@ -46,15 +46,17 @@ python app.py
 
 ## Usage
 
-1. **Adding Cells**: Use the "Add Code Cell" or "Add Markdown Cell" buttons to create new cells
-2. **Editing Cells**: Click on a cell to edit its content
-3. **Moving Cells**: Use the up/down arrows to reorder cells
-4. **Deleting Cells**: Click the "×" button to remove a cell
-5. **Code Execution**: Click the "▶ Run" button to execute Python code. Variables persist between cells
-6. **AI Features**:
-   - Click "AI Chat" to get help with your code or markdown. The AI response can be directly applied to the cell
-   - Use "AI Polish" to automatically polish the markdown content in the cell
-   - Use "AI Optimize" to automatically optimize the Python code in the cell
+### Code Cells
+- Write Python code in code cells
+- Click "▶ Run" to execute the code
+- Click "🔧 Format" to automatically format your code using Black
+- Click "🦾 AI Optimize" to get AI suggestions for code improvement
+- Click "🤖 Chat" to discuss your code with the AI assistant
+
+### Markdown Cells
+- Write markdown in markdown cells
+- Click "🦾 AI Polish" to improve your markdown content
+- Real-time preview of markdown rendering
 
 ## Technologies Used
 
