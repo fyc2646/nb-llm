@@ -1,6 +1,6 @@
 # 📓Notebook with LLM🤖
 
-<img src="banner.png" width="800" alt="NB-LLM Banner">
+<img src="asset/banner.png" width="800" alt="nb-llm Banner">
 
 A web-based Jupyter notebook editor with AI capabilities powered by OpenAI's GPT models.
 
@@ -48,7 +48,7 @@ python app.py
 
 ## Usage
 
-<img src="instructions.png" width="400" alt="Usage Instructions">
+<img src="asset/instructions.png" width="400" alt="Usage Instructions">
 
 ### Code Cells
 - Write Python code in code cells
